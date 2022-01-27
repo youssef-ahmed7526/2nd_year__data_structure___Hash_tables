@@ -1,0 +1,218 @@
+
+
+#include <stdio.h>
+#include<stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <time.h>
+
+int N=0;//number of students
+double total_time=0;
+int size;
+int location,node_number=0; int delete_call=0;int found=0;
+
+char * getString(){
+    char temp[50];
+    scanf("%*c");
+    fgets(temp, sizeof(temp), stdin);
+    char* str= (char*) malloc(strlen(temp));
+    for (int i=0;i<strlen(temp);i+=1)
+        str[i]=temp[i];
+    str[strlen(temp)-1]='\0';
+    return str;}
+
+
+typedef struct    //define student structure
+{
+    char *name;
+    int id;
+    int day;int month;int year;   //date of birth
+    int student_score;
+}student;
+
+student read_st()
+{
+    student st;
+     printf("student name:");
+     st.name=getString();
+     printf("student id:");  scanf("%d",&st.id);
+     printf("student date of birth:\n");
+     printf("day:"); scanf("%d",&st.day);
+     printf("month:"); scanf("%d",&st.month);
+     printf("year:"); scanf("%d",&st.year);
+     printf("student last year score:");  scanf("%d",&st.student_score);
+     return st;
+}
+
+typedef struct node_tmp
+{   student st;
+	struct node_tmp*next;
+}node;
+
+node*head;
+
+node*newNode(student st)
+{   node*nodeP;
+	nodeP=(node*)malloc(sizeof(node));
+	nodeP->st = st;
+	nodeP->next = NULL;
+	return nodeP;
+}
+
+
+int name_to_key(char*name){
+    int i=0;int sum=0;
+    while(name[i])//get sum of ASCII code of the name characters
+    {
+      sum += name[i];
+      i++;
+    }
+    int key = sum % size;
+    return key;
+}
+
+void insert_open_hashing(node*head)
+{
+    student st=read_st();
+    int start=clock();
+    int key=name_to_key(st.name);
+    node*new_node=newNode(st);
+    node*node_pointer=(head+key);
+    if (!(node_pointer->st.name))
+    {*(node_pointer)=*(newNode(st));}
+    else{ while((node_pointer->next)){
+        node_pointer=node_pointer->next;
+        }
+        node_pointer->next=new_node;
+        }
+    total_time+=((double)(clock()-start)/CLOCKS_PER_SEC*10e3);
+    N++;
+}
+
+void display_open_hashing(node*head){
+    for(int i=0;i<size;i++){
+    printf("location%d:",i);
+    node*p=(head+i);
+    if(!(p->st.name))printf(" empty");
+    else{printf(" %s",p->st.name);
+
+    //printf("%s",p->next);
+
+    while ((p->next)){
+        p=p->next;
+        printf(" -> %s",p->st.name);
+        }
+    }printf("\n");
+    }
+}
+
+
+void find_open_hashing(node*head,char*name){
+    node*p;int i=0;
+    int key=name_to_key(name);
+        p=(head+key);
+        if ((p->st.name)){
+        if(!strcmp(p->st.name,name)){if(!delete_call)printf("found at location %d, node number 0\n",key);found=1;location=key;node_number=0;}
+        while ((p->next)){
+        p=p->next;i++;
+        if(!strcmp(p->st.name,name)){if(!delete_call)printf("found at location %d, node number %d\n",key,i);found=1;location=key;node_number=i;}
+        }}
+    if(!found)
+        printf("the name:%s is not found\n",name);
+
+}
+
+void delete_open_hashing(node*head,char*name){
+    delete_call=1;
+    find_open_hashing(head,name);
+    if (found){
+    node*temp=(head+location);node*pre=temp;
+    for(int i=0;i<node_number;i++)
+    {pre=temp;
+    temp=temp->next;}
+    if(!node_number) pre=temp->next;
+
+    if(node_number) pre->next=temp->next;
+    free(temp);
+    temp->st.name=NULL;
+    if(!node_number) {
+    if (pre)*(head+location)=*pre;
+    if (!pre) free((head+location)->st.name);
+    }
+    printf("student deleted successfully!\n");
+    }
+}
+
+
+int calc_size_open_hashing(node*head){
+    int memory_size=size * sizeof(node);
+    node*temp;
+    for(int i=0;i<size;i++){
+        temp=head+i;
+    while(temp->next){
+        memory_size+=sizeof(node);
+        temp=temp->next;
+    }
+    }
+printf("size of the Hash table using open hashing is %d bytes\n",memory_size);
+}
+
+
+int main()
+{   printf("Welcome sir!\n");
+    printf("For open hashing press 1 for closed hashing press 2 \n");
+    int option;
+    scanf("%d",&option);
+
+    while ((option!=1)&&(option!=2)){
+        printf("Please enter 1 or 2 \n" );
+        scanf("%d",&option);
+    }
+    printf("Please enter size of the hash table: ");
+    scanf("%d",&size);
+    head=(node*)(malloc(size*sizeof(node))); head->st.name=NULL;
+    int n;
+    printf("Please enter number of students: ");
+    scanf("%d",&n);
+    for(int i=0;i<n;i+=1)
+    {
+             printf("Enter data of student number %d \n",i+1);
+                if (option==1)insert_open_hashing(head);
+
+    }
+
+
+    if (option==1)
+    {
+    int option2=1;
+    while (option2!=7){
+    printf("\npress 1 to insert more students \n");
+    printf("press 2 to delete a student from the table \n");
+    printf("press 3 to find a student in the table \n");
+    printf("press 4 to calculate average time taken for insertion \n");
+    printf("press 5 to calculate the memory size required for the table \n");
+    printf("press 6 to display the hash table \n");
+    printf("press 7 to exit \n");
+        scanf("%d",&option2);
+    while ((option2!=1)&&(option2!=2)&&(option2!=3)&&(option2!=4)&&(option2!=5)&&(option2!=6)&&(option2!=7)){
+        printf("please enter 1,2,3,4,5,6 or 7 \n" );
+        scanf("%d",&option2);}
+        if(option2==1)insert_open_hashing(head);
+        if(option2==2){
+            printf("please enter the name of the student:");
+            delete_open_hashing(head,getString());
+        }
+        if(option2==3){
+            printf("please enter the name of the student:");
+            find_open_hashing(head,getString());
+        }
+        if(option2==4)printf("average time taken for insertion=%f milli second\n",(double)(total_time/N));
+        if(option2==5)calc_size_open_hashing(head);
+        if(option2==6)display_open_hashing(head);
+        if(option2==7) break;
+
+
+
+    }}
+    return 0;
+    }
