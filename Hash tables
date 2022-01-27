@@ -1,11 +1,3 @@
-/*
-هيثم عصام عزت ددرويش
-sec:4 BN:42 seat number:32208
-يوسف أحمد محمد أحمد يس
-sec:4 BN:50 seat number:32216
-يوسف خالد السيد عبد الله
-sec:4 BN:53 seat number:32219
-*/
 
 #include <string.h>
 #include <stdlib.h>
